@@ -1,0 +1,20 @@
+{
+  "upstream": "github.com/KyaniteLabs/dev-learning-archaeologist",
+  "commit": "fbb375bc938664028be44a0a02d6b783dfe32516",
+  "commit_short": "fbb375b",
+  "license": "MIT (vendored verbatim as vendor/methodology/LICENSE; the brief said Apache-2.0+NOTICE but the committed state has no NOTICE file and ships MIT)",
+  "pins": {
+    "LICENSE": {"sha256": "f010bc481208e6b591ab0a4b852e02541efcea197ac2d737192d863e0d8641d0", "git_blob": "95c7d9e4540bcbe2e37dc1efcb8cdfed18491c39"},
+    "README.md": {"sha256": "0064f9d4a4743046221a8628bc97c65fb9657246965cd4d0d8ca1274218d5c9d", "git_blob": "c5e057ec53bad30a11bef5bc047e7e2dd4318e84"},
+    "examples.md": {"sha256": "15b93fc6bfcfcb2f0c47a00a611493c24a22fb57dc344fdec1d3322523d3d31d", "git_blob": "af97c59e24fc8045a35a26803514353e3352e852"},
+    "identity.md": {"sha256": "1b338467dc1321ff5c8d0e7108b5e5be65d46099438c55a799426d3a067ec34b", "git_blob": "ebeb3eb295ff3dade25121b01681c847365eedbf"},
+    "llms.txt": {"sha256": "4395cac6dbbff5757e76826cfe486c72e58e1d7fa471a1a92f311f6fbb1ac0ea", "git_blob": "98a441046cc328c658449ed597ca84cd795bc5bd"},
+    "reference/README.md": {"sha256": "0ab2bdc693aba2f958d34af80f5b627a3724d49c019670e81a356b73bc7df61f", "git_blob": "2025250664e257e2369a2769bfe2c765282b44a3"},
+    "reference/data-enrichment.md": {"sha256": "cc03633c393ef29576825e6eadf80b87a13f80650094160e26cec084a1f32cf2", "git_blob": "f03f69bd383fab067223f564198308d3fc1756cb"},
+    "reference/html-report-spec.md": {"sha256": "3da8274217dace821b5d0b26d189b9e5536d8d390e3dc70e3e8634c8770f5812", "git_blob": "4d61029462647aa35f4220ca430a2483de50f547"},
+    "reference/output-schemas.md": {"sha256": "3ef7d7b85759afd024fc9f253d04530125afd643e11f167596ff4ba1fed0d1bb", "git_blob": "a434d67738d33b824d01d058d63c34eaca47a2ca"},
+    "reference/signal-heuristics.md": {"sha256": "9048de5544d7749d04559757e9950e1a6e50905be8aefb73ed9af584b13685e1", "git_blob": "9c29ecdf212ecba43275e3c2dd97762db8fdcbd6"},
+    "reference/verified-creators.md": {"sha256": "6ef7dd1fe770c84d44d7943a50f282407c0b2859215f500ad11bdf1c025e6307", "git_blob": "4486a6a500c0ba0f2ceb8759524b5a65b0bcb878"},
+    "rules.md": {"sha256": "499033a2cb3ebeda6851ec57f77694241247d2d753bb5f1e473330e41416f5cb", "git_blob": "806b5880ad770b33d5e9e43346e709e40a416b28"}
+  }
+}

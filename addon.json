@@ -1,0 +1,218 @@
+{
+  "id": "addon.dev-learning-archaeologist",
+  "name": "Dev Learning Archaeologist",
+  "version": "0.1.0",
+  "author": "KyaniteLabs",
+  "category": "tool",
+  "sdkVersion": "0.1.0",
+  "description": "Turns a repo's git history into evidence for a learning diagnostic: deterministic ground truth (commit counts, identity consolidation, branch dedup) and excavation (commit-type taxonomy, temporal bursts and gaps, rework hotspots, co-authorship) per Phases 0-1 of the Dev Learning Archaeologist methodology, plus the byte-identical vendored methodology documents that guide the agent-side Phase 2-5 judgment. Read-only over git history; the analyzed repo must sit under a scan-root boundary; author emails are always masked.",
+  "runtimeType": "local-service",
+  "surfaces": [],
+  "requestedCapabilities": [
+    {
+      "capability": "filesystem",
+      "granted": false,
+      "scope": "workspace",
+      "revocationBehavior": "hard-stop"
+    }
+  ],
+  "provenance": {
+    "tier": "sideloaded-unverified",
+    "verificationState": "unverified",
+    "signed": false
+  },
+  "runtimeIsolation": {
+    "boundary": "host-mediated-service",
+    "supportsDegradedMode": true,
+    "requiresReviewedGrant": true
+  },
+  "grantPresets": [
+    {
+      "id": "dla-local-history",
+      "label": "Local git history reads",
+      "description": "Allow the archaeologist to read git history of repositories that sit under the configured scan root (DLA_SCAN_ROOT, default var/scan-root inside the add-on). Read-only: no git command writes to the analyzed repository; author emails are masked in all outputs.",
+      "grants": [
+        {
+          "capability": "filesystem",
+          "granted": true,
+          "scope": "workspace",
+          "revocationBehavior": "hard-stop"
+        }
+      ]
+    }
+  ],
+  "providerRequirements": {
+    "sharedProfiles": [],
+    "supportsPrivateCredentials": true
+  },
+  "systemSlots": [],
+  "archiveIntegration": {
+    "readScopes": [],
+    "intakeWriteScopes": [],
+    "canRequestIngest": false,
+    "canWriteKnowledgePages": false
+  },
+  "health": {
+    "strategy": "http-json-status"
+  },
+  "service": {
+    "protocol": "http-json",
+    "entrypoint": "http://127.0.0.1:4897",
+    "healthCommand": "dla.status"
+  },
+  "tools": [
+    {
+      "name": "dla.status",
+      "description": "Report service version, methodology commit pin, busy state, the most recent excavation id, and the active scan-root boundary.",
+      "requiredCapabilities": ["filesystem"],
+      "inputSchema": { "type": "object", "properties": {}, "additionalProperties": false },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "ok": { "type": "boolean" },
+          "tool": { "type": "string" },
+          "version": { "type": "string" },
+          "methodology_commit": { "type": "string" },
+          "busy": { "type": "boolean" },
+          "last_excavation_id": { "type": ["string", "null"] },
+          "scan_root": { "type": "string", "description": "Confinement root (home paths redacted to ~); repos outside it are refused" }
+        }
+      },
+      "audit": { "logRequest": true, "logResult": true, "artifactTypes": ["log"] },
+      "requiresHumanApproval": false
+    },
+    {
+      "name": "dla.contributors",
+      "description": "Phase 0 step 1 for a multi-author repo: the contributor table (identities consolidated by shared email or normalized name, commit counts, agent/bot-looking identities flagged, emails masked) so a caller can pick one author before dla.excavate. The repo path must sit under DLA_SCAN_ROOT.",
+      "requiredCapabilities": ["filesystem"],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "repo": { "type": "string", "description": "Repository path to read, confined to DLA_SCAN_ROOT (default var/scan-root inside the add-on)", "maxLength": 2048 }
+        },
+        "required": ["repo"],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "tool": { "type": "string" },
+          "schema": { "type": "string", "const": "dla-contributors/1" },
+          "generated_at": { "type": "string" },
+          "repo": { "type": "string", "description": "Resolved repo root, home paths redacted to ~" },
+          "scan_root": { "type": "string" },
+          "methodology_commit": { "type": "string" },
+          "total_commits": { "type": "integer" },
+          "contributors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "display_name": { "type": "string" },
+                "names": { "type": "array", "items": { "type": "string" } },
+                "emails_masked": { "type": "array", "items": { "type": "string" } },
+                "commits": { "type": "integer" },
+                "pct": { "type": "number" },
+                "agent_marker": { "type": "boolean" }
+              }
+            }
+          },
+          "notes": { "type": "array", "items": { "type": "string" } }
+        },
+        "required": ["schema", "total_commits", "contributors"]
+      },
+      "audit": { "logRequest": true, "logResult": true, "artifactTypes": ["log"] },
+      "requiresHumanApproval": false
+    },
+    {
+      "name": "dla.excavate",
+      "description": "Deterministic Phase 0 (ground truth: raw/dedup/logical commit counts verified against git rev-list, active days, span, identity consolidation, branch dedup within 5 minutes, batch-merge detection) and Phase 1 (excavate: commit-type taxonomy with scope analysis and verb fallback, hourly/daily distributions, burst-gap cycles, frustration-level rework hotspots, Co-Authored-By MER proxy) over one repo's git history. Phases 2-5 (eras, the 7 analysis vectors, the HTML report) are agent judgment — fetch the methodology with dla.docs/dla.doc. Optional author filter scopes everything to one contributor and reports what percent of repo activity they represent. Emails masked; result persisted home-path-redacted under var/. One history read at a time.",
+      "requiredCapabilities": ["filesystem"],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "repo": { "type": "string", "description": "Repository path to read, confined to DLA_SCAN_ROOT (default var/scan-root inside the add-on)", "maxLength": 2048 },
+          "author": { "type": "string", "description": "Optional case-insensitive substring matched against author names/emails to scope the analysis to one contributor (rules.md Phase 0 multi-author rule)", "maxLength": 2048 }
+        },
+        "required": ["repo"],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "tool": { "type": "string" },
+          "schema": { "type": "string", "const": "dla-excavation/1" },
+          "generated_at": { "type": "string" },
+          "repo": { "type": "string", "description": "Resolved repo root, home paths redacted to ~" },
+          "scan_root": { "type": "string" },
+          "author_filter": { "type": ["string", "null"] },
+          "contributor_pct_of_repo": { "type": ["number", "null"], "description": "When an author filter is set: percent of total repo activity the analyzed set represents" },
+          "methodology": { "type": "object", "description": "name, commit, covered_here (Phase 0-1), not_covered_here (Phase 2-5 pointer)" },
+          "limits": { "type": "object", "description": "max_commits, walk_truncated, message_truncated_chars, messages_truncated, raw_rev_list_count" },
+          "ground_truth": { "type": "object", "description": "total_commits_raw, total_commits_after_dedup, logical_commits_after_batch_merge, batch_merge_groups, active_days, span_days, active_day_ratio, first_commit, last_commit" },
+          "identities": { "type": "object", "description": "clusters (display_name, names, emails_masked, commits, pct, agent_marker), multi_author, gap_boundary_rule" },
+          "commit_types": { "type": "object", "description": "distribution, conventional_ratio, scope_analysis, verb_fallback (when >50% non-conventional)" },
+          "temporal": { "type": "object", "description": "gap_boundary_hours, hourly, daily, peak_hour, peak_day, bursts_gaps, burst_to_gap_ratio" },
+          "hotspots": { "type": "object", "description": "files with 3+ modifications, frustration level 1-4, message signal counts; era scoping is agent work" },
+          "coauthorship": { "type": "object", "description": "commits_with_co_authors, mer_proxy (LOW confidence), ai_tools_seen" },
+          "data_gaps": { "type": "array", "items": { "type": "string" } },
+          "emails_are_masked": { "type": "boolean" },
+          "excavation_id": { "type": "string", "description": "Wrapper-assigned id; the same redacted record is persisted at record_path" },
+          "record_path": { "type": "string", "description": "Addon-relative path of the persisted redacted excavation.json under var/" }
+        },
+        "required": ["schema", "ground_truth", "identities", "commit_types", "temporal"]
+      },
+      "audit": { "logRequest": true, "logResult": true, "artifactTypes": ["diagnostic-report", "log"] },
+      "requiresHumanApproval": false
+    },
+    {
+      "name": "dla.docs",
+      "description": "List the vendored Dev Learning Archaeologist methodology documents (byte-identical to upstream commit fbb375b): identity, rules (the 5-phase pipeline), examples, signal heuristics, output schemas, HTML report spec, verified creators, data enrichment.",
+      "requiredCapabilities": ["filesystem"],
+      "inputSchema": { "type": "object", "properties": {}, "additionalProperties": false },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "tool": { "type": "string" },
+          "methodology_commit": { "type": "string" },
+          "docs": { "type": "array", "items": { "type": "string" } },
+          "note": { "type": "string" }
+        }
+      },
+      "audit": { "logRequest": true, "logResult": true, "artifactTypes": ["log"] },
+      "requiresHumanApproval": false
+    },
+    {
+      "name": "dla.doc",
+      "description": "Read one vendored methodology document verbatim (rules.md for the 5-phase pipeline and 7 vectors, reference/signal-heuristics.md for formulas, reference/output-schemas.md for structured output contracts, etc.).",
+      "requiredCapabilities": ["filesystem"],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "description": "Document name as listed by dla.docs", "maxLength": 2048 }
+        },
+        "required": ["name"],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "tool": { "type": "string" },
+          "methodology_commit": { "type": "string" },
+          "name": { "type": "string" },
+          "content": { "type": "string", "description": "Verbatim document text" }
+        },
+        "required": ["name", "content"]
+      },
+      "audit": { "logRequest": true, "logResult": true, "artifactTypes": ["markdown", "log"] },
+      "requiresHumanApproval": false
+    }
+  ],
+  "installHooks": {
+    "onInstall": "start-dla-service"
+  },
+  "compatibility": {
+    "shellVersion": "^0.1.0",
+    "platforms": ["macOS", "linux", "windows"]
+  }
+}
