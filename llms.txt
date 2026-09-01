@@ -11,7 +11,7 @@ judgment work; the service computes the evidence and claims neither.
 ## Canonical links
 
 - This repo: https://github.com/simongonzalezdc/resonant-repo-archaeologist
-- Canonical upstream: https://github.com/simongonzalezdc/dev-learning-archaeologist (MIT, commit fbb375b pinned)
+- Canonical upstream: https://github.com/simongonzalezdc/dev-learning-archaeologist (MIT, vendored blobs sha256-pinned (VENDOR-PINS.json); source lineage: Forgejo fbb375b, content identical in the merged mirror)
 
 ## Key facts
 
