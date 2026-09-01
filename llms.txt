@@ -11,7 +11,7 @@ judgment work; the service computes the evidence and claims neither.
 ## Canonical links
 
 - This repo: https://github.com/simongonzalezdc/resonant-repo-archaeologist
-- Canonical upstream: https://github.com/simongonzalezdc/dev-learning-archaeologist (MIT, vendored blobs sha256-pinned (VENDOR-PINS.json); source lineage: Forgejo fbb375b, content identical in the merged mirror)
+- Canonical upstream: https://github.com/simongonzalezdc/dev-learning-archaeologist (MIT, vendored blobs sha256-pinned (VENDOR-PINS.json); source lineage: merged mirror main 7b2be15 (content-matching commit reachable on both forges))
 
 ## Key facts
 
@@ -19,7 +19,7 @@ judgment work; the service computes the evidence and claims neither.
 - License: none declared at this repo's root (the canonical upstream is MIT)
 - Read-only: scan-root confined (DLA_SCAN_ROOT), traversal and symlink
   escapes refused; author emails masked before any output exists
-- Vendored docs byte-identical to upstream fbb375b, hash-pinned in
+- Vendored docs sha256-pinned in VENDOR-PINS.json (content verified across the merge), hash-pinned in
   vendor/VENDOR-PINS.json
 
 Relationship: community gift by Kyanite Labs for ResonantOS — canonical
