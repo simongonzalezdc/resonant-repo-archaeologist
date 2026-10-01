@@ -1,5 +1,5 @@
 {
-  "upstream": "github.com/KyaniteLabs/dev-learning-archaeologist",
+  "upstream": "github.com/simongonzalezdc/dev-learning-archaeologist",
   "commit": "fbb375bc938664028be44a0a02d6b783dfe32516",
   "commit_short": "fbb375b",
   "license": "MIT (vendored verbatim as vendor/methodology/LICENSE; the brief said Apache-2.0+NOTICE but the committed state has no NOTICE file and ships MIT)",
